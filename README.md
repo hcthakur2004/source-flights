@@ -2,6 +2,10 @@
 
 A responsive Flight Management web app built for the Source Asia frontend internship assignment. The app covers flight search, booking, realtime seat selection, booking cancellation, same-route rescheduling, Supabase Auth, RLS-backed data access, and Zustand persistence.
 
+## Live Demo
+
+Production: https://source-flights.vercel.app/
+
 ## Tech Stack
 
 - Next.js 16 App Router with TypeScript
