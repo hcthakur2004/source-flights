@@ -55,6 +55,7 @@ supabase/migrations/003_rpc_functions.sql
 supabase/migrations/004_seed_data.sql
 supabase/migrations/005_expand_flight_seed_data.sql
 supabase/migrations/006_remove_public_seat_holder.sql
+supabase/migrations/007_refresh_seat_rpcs_without_holder.sql
 ```
 
 Enable Realtime for the `seats` table from Supabase SQL Editor:
