@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #0f172a;
 }
 
 @theme inline {
@@ -12,15 +14,132 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  min-height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+html.dark {
+  --background: #020617;
+  --foreground: #e2e8f0;
+  color-scheme: dark;
+}
+
+html.dark body {
+  background: #020617 !important;
+  color: #e2e8f0 !important;
+}
+
+button,
+a,
+input,
+select {
+  transition-duration: 150ms;
+}
+
+html.dark .bg-white,
+html.dark .bg-white\/95 {
+  background-color: #0f172a !important;
+}
+
+html.dark .bg-slate-50 {
+  background-color: #020617 !important;
+}
+
+html.dark .bg-slate-100 {
+  background-color: #1e293b !important;
+}
+
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-300 {
+  border-color: #334155 !important;
+}
+
+html.dark .text-slate-950 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-slate-800,
+html.dark .text-slate-700,
+html.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-500,
+html.dark .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+html.dark input,
+html.dark select {
+  background-color: #020617 !important;
+  color: #f8fafc !important;
+  color-scheme: dark;
+}
+
+html.dark .shadow-slate-200\/60,
+html.dark .shadow-slate-200\/80 {
+  --tw-shadow-color: rgb(2 6 23 / 0.8) !important;
+}
+
+html.dark .from-slate-100 {
+  --tw-gradient-from: #1e293b var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(30 41 59 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+html.dark .to-white {
+  --tw-gradient-to: #0f172a var(--tw-gradient-to-position) !important;
+}
+
+.network-panel {
+  background-color: #f0fdfa !important;
+  border: 1px solid #99f6e4 !important;
+  color: #0f172a !important;
+}
+
+.network-panel-divider {
+  border-color: #99f6e4 !important;
+}
+
+.network-panel-badge {
+  background-color: #0d9488 !important;
+  color: #ffffff !important;
+}
+
+.network-panel-value {
+  color: #020617 !important;
+}
+
+.network-panel-label {
+  color: #334155 !important;
+}
+
+html.dark .network-panel {
+  background-color: #0b2f2e !important;
+  border-color: #14b8a6 !important;
+}
+
+html.dark .network-panel-divider {
+  border-color: rgb(45 212 191 / 0.35) !important;
+}
+
+html.dark .network-panel-badge {
+  background-color: #14b8a6 !important;
+  color: #042f2e !important;
+}
+
+html.dark .network-panel-value {
+  color: #f8fafc !important;
+}
+
+html.dark .network-panel-label {
+  color: #ccfbf1 !important;
 }
