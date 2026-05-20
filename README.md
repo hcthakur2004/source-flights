@@ -21,7 +21,7 @@ Production: https://source-flights.vercel.app/
 - Select seats from a visual aircraft cabin map
 - Realtime seat availability updates through Supabase Realtime
 - Atomic seat reservation through a Supabase RPC
-- Passenger details form and booking confirmation with PNR
+- Passenger details forms and booking confirmation with PNR
 - My Bookings page with status badges
 - Atomic cancellation that frees the seat
 - DB-level rejection for cancellations within 2 hours of departure
@@ -103,7 +103,7 @@ A database trigger rejects cancellation updates when departure is within 2 hours
 
 ## Zustand Architecture
 
-`useFlightStore` keeps the active search query, selected flight, selected seat, booking step, and passenger draft. The store persists the search and in-progress booking state, but `partialize` intentionally clears `passportNo` before writing to localStorage.
+`useFlightStore` keeps the active search query, selected flight, selected seats, booking step, and passenger drafts. The store persists the search and in-progress booking state, but `partialize` intentionally clears `passportNo` before writing to localStorage.
 
 `useUserStore` keeps the Supabase session and cached bookings. Only session fields required to resume auth state are persisted. Cached bookings support a readable My Bookings experience after reloads and as a basis for offline fallback behavior.
 
@@ -111,7 +111,7 @@ Both stores expose reset actions used after logout and booking cancellation.
 
 ## Trade-offs
 
-- The implemented booking flow focuses on one passenger per booking. The passenger count is included in search state and UI, but multi-passenger seat allocation is a future extension.
+- Multi-passenger checkout creates one booking record per passenger and selected seat, so each traveler has an individual PNR and can be managed separately.
 - Payment processing is intentionally out of scope.
 - The PWA implementation includes a manifest and offline page. A full `next-pwa` cache strategy and Lighthouse screenshot can be added as a bonus polish step after core flows are verified.
 - The reschedule UI automatically assigns the first available seat on the selected same-route flight to keep the flow fast within the assignment timeline.

@@ -16,8 +16,9 @@ const columns = ["A", "B", "C", "D", "E", "F"];
 
 export function SeatMap({ flightId, initialSeats }: SeatMapProps) {
   const [seats, setSeats] = useState(initialSeats);
-  const selectedSeat = useFlightStore((state) => state.selectedSeat);
-  const setSelectedSeat = useFlightStore((state) => state.setSelectedSeat);
+  const passengerCount = useFlightStore((state) => state.searchQuery.passengers);
+  const selectedSeats = useFlightStore((state) => state.selectedSeats);
+  const toggleSelectedSeat = useFlightStore((state) => state.toggleSelectedSeat);
 
   useEffect(() => {
     const supabase = createClient();
@@ -61,8 +62,10 @@ export function SeatMap({ flightId, initialSeats }: SeatMapProps) {
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-xl shadow-slate-200/60">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-950">Select your seat</h2>
-          <p className="text-sm text-slate-500">Live availability updates when other users book.</p>
+          <h2 className="text-lg font-semibold text-slate-950">Select seats</h2>
+          <p className="text-sm text-slate-500">
+            Choose {passengerCount} {passengerCount === 1 ? "seat" : "seats"} for your passengers. Live availability updates when other users book.
+          </p>
         </div>
         <div className="flex flex-wrap gap-2 text-xs text-slate-600">
           <Legend color="bg-white ring-slate-300" label="Available" />
@@ -86,14 +89,14 @@ export function SeatMap({ flightId, initialSeats }: SeatMapProps) {
                 <span className="text-center text-xs font-semibold text-slate-400">{row}</span>
                 {rowSeats.map((seat, index) => {
                   if (!seat) return <span key={`${row}-${index}`} />;
-                  const isSelected = selectedSeat?.id === seat.id;
+                  const isSelected = selectedSeats.some((selectedSeat) => selectedSeat.id === seat.id);
                   return (
                     <button
                       key={seat.id}
                       type="button"
                       disabled={!seat.is_available}
                       title={`${seat.seat_number} - ${seat.class} - ${formatMoney(seat.extra_fee)} extra`}
-                      onClick={() => setSelectedSeat(seat)}
+                      onClick={() => toggleSelectedSeat(seat, passengerCount)}
                       className={`h-10 rounded-md text-xs font-bold ring-1 transition ${
                         isSelected
                           ? "bg-teal-600 text-white ring-teal-700"

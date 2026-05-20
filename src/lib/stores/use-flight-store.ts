@@ -5,14 +5,16 @@ import type { Flight, PassengerDraft, SearchQuery, Seat } from "@/lib/types";
 type FlightStore = {
   searchQuery: SearchQuery;
   selectedFlight: Flight | null;
-  selectedSeat: Seat | null;
+  selectedSeats: Seat[];
   bookingStep: number;
-  passenger: PassengerDraft;
+  passengers: PassengerDraft[];
   setSearchQuery: (query: SearchQuery) => void;
   setSelectedFlight: (flight: Flight | null) => void;
-  setSelectedSeat: (seat: Seat | null) => void;
+  toggleSelectedSeat: (seat: Seat, maxSeats: number) => void;
+  clearSelectedSeats: () => void;
   setBookingStep: (step: number) => void;
-  setPassenger: (passenger: PassengerDraft) => void;
+  setPassengerAt: (index: number, passenger: PassengerDraft) => void;
+  syncPassengerCount: (count: number) => void;
   resetBooking: () => void;
 };
 
@@ -35,20 +37,49 @@ export const useFlightStore = create<FlightStore>()(
     (set) => ({
       searchQuery: initialSearch,
       selectedFlight: null,
-      selectedSeat: null,
+      selectedSeats: [],
       bookingStep: 1,
-      passenger: initialPassenger,
-      setSearchQuery: (query) => set({ searchQuery: query }),
+      passengers: [initialPassenger],
+      setSearchQuery: (query) =>
+        set((state) => ({
+          searchQuery: query,
+          selectedSeats: state.selectedSeats.slice(0, query.passengers),
+          passengers: normalizePassengers(state.passengers, query.passengers),
+        })),
       setSelectedFlight: (flight) => set({ selectedFlight: flight }),
-      setSelectedSeat: (seat) => set({ selectedSeat: seat, bookingStep: seat ? 3 : 2 }),
+      toggleSelectedSeat: (seat, maxSeats) =>
+        set((state) => {
+          const exists = state.selectedSeats.some((selectedSeat) => selectedSeat.id === seat.id);
+          const selectedSeats = exists
+            ? state.selectedSeats.filter((selectedSeat) => selectedSeat.id !== seat.id)
+            : state.selectedSeats.length < maxSeats
+              ? [...state.selectedSeats, seat]
+              : state.selectedSeats;
+
+          return {
+            selectedSeats,
+            bookingStep: selectedSeats.length === maxSeats ? 3 : 2,
+          };
+        }),
+      clearSelectedSeats: () => set({ selectedSeats: [], bookingStep: 2 }),
       setBookingStep: (step) => set({ bookingStep: step }),
-      setPassenger: (passenger) => set({ passenger }),
+      setPassengerAt: (index, passenger) =>
+        set((state) => {
+          const passengers = normalizePassengers(state.passengers, state.searchQuery.passengers);
+          passengers[index] = passenger;
+          return { passengers };
+        }),
+      syncPassengerCount: (count) =>
+        set((state) => ({
+          passengers: normalizePassengers(state.passengers, count),
+          selectedSeats: state.selectedSeats.slice(0, count),
+        })),
       resetBooking: () =>
         set({
           selectedFlight: null,
-          selectedSeat: null,
+          selectedSeats: [],
           bookingStep: 1,
-          passenger: initialPassenger,
+          passengers: [initialPassenger],
         }),
     }),
     {
@@ -56,15 +87,19 @@ export const useFlightStore = create<FlightStore>()(
       partialize: (state) => ({
         searchQuery: state.searchQuery,
         selectedFlight: state.selectedFlight,
-        selectedSeat: state.selectedSeat,
+        selectedSeats: state.selectedSeats,
         bookingStep: state.bookingStep,
-        passenger: {
-          fullName: state.passenger.fullName,
-          nationality: state.passenger.nationality,
-          dob: state.passenger.dob,
+        passengers: state.passengers.map((passenger) => ({
+          fullName: passenger.fullName,
+          nationality: passenger.nationality,
+          dob: passenger.dob,
           passportNo: "",
-        },
+        })),
       }),
     },
   ),
 );
+
+function normalizePassengers(passengers: PassengerDraft[], count: number) {
+  return Array.from({ length: Math.max(1, count) }, (_, index) => passengers[index] ?? initialPassenger);
+}
