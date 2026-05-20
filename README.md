@@ -6,6 +6,32 @@ A responsive Flight Management web app built for the Source Asia frontend intern
 
 Production: https://source-flights.vercel.app/
 
+## Reviewer Test Flow
+
+1. Open the live demo.
+2. Log in with the demo account.
+3. Search `Bengaluru -> Chennai` with `2` or more passengers.
+4. Select a flight.
+5. Select the same number of seats as passengers.
+6. Fill passenger details for every traveler.
+7. Confirm the booking.
+8. Open My Bookings.
+9. Cancel or reschedule a booking.
+
+## Screenshots
+
+### Search and routes
+
+![Search page with route cards](docs/screenshots/search.png)
+
+### Seat selection
+
+![Seat selection and passenger details](docs/screenshots/seat-selection.png)
+
+### My Bookings
+
+![My Bookings management page](docs/screenshots/my-bookings.png)
+
 ## Tech Stack
 
 - Next.js 16 App Router with TypeScript
@@ -109,6 +135,28 @@ A database trigger rejects cancellation updates when departure is within 2 hours
 
 Both stores expose reset actions used after logout and booking cancellation.
 
+## Architecture
+
+```mermaid
+flowchart LR
+  UI["Next.js App Router UI"] --> Store["Zustand persisted stores"]
+  UI --> Supabase["Supabase browser/server clients"]
+  Supabase --> Auth["Supabase Auth"]
+  Supabase --> DB[("PostgreSQL")]
+  DB --> RLS["Row Level Security policies"]
+  DB --> RPC["Reservation, cancellation, reschedule RPCs"]
+  DB --> Realtime["Realtime seats subscription"]
+```
+
+## Production Decisions
+
+- Seat booking runs through a PostgreSQL RPC so availability is checked and updated atomically.
+- Cancellation is also handled through an RPC so the booking status and seat availability stay consistent.
+- The 2-hour cancellation rule is enforced by a database trigger instead of client-only validation.
+- Passport numbers are intentionally excluded from Zustand persistence with `partialize`.
+- Multi-passenger checkout creates one booking and PNR per traveler, which makes cancellation and rescheduling manageable per passenger.
+- Public seat reads do not expose user identifiers; seat availability is enough for the cabin UI.
+
 ## Trade-offs
 
 - Multi-passenger checkout creates one booking record per passenger and selected seat, so each traveler has an individual PNR and can be managed separately.
@@ -133,3 +181,15 @@ Deploy on Vercel and add the same environment variables from `.env.example`. Aft
 3. Confirm a booking.
 4. Open My Bookings.
 5. Cancel or reschedule the booking.
+
+## Manual QA Checklist
+
+- Search works for seeded routes and empty states appear for unavailable routes.
+- Multi-passenger checkout requires the same number of selected seats as passengers.
+- Seat selection is scrollable and touch-friendly on mobile.
+- Booked seats become unavailable after confirmation.
+- Realtime seat updates work after `public.seats` is added to `supabase_realtime`.
+- My Bookings shows confirmed, cancelled, and rescheduled statuses.
+- Cancellation frees the seat and is blocked within 2 hours of departure by the database trigger.
+- Logout resets persisted booking state.
+- Dark mode keeps text and controls readable.
